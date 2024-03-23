@@ -1,0 +1,331 @@
+const char *ssid = "TIGO-70C3"; 
+const char *password = "2D9557300820";
+
+// Set web server port number to 80
+WiFiServer server(80);
+
+// Variable to store the HTTP request
+String header;
+
+// Define pines
+const int led = 14;    // pin 
+const int led2 = 33; // pin 
+const int led3 = 32;   // pin 
+const int led4= 16;    // pin
+const int led5 = 17; // 
+const int led6 = 13;
+const int led7 = 18;
+const int led8 = 19;
+// Current time
+unsigned long currentTime = millis();
+// Previous time
+unsigned long previousTime = 0;
+// Define timeout time in milliseconds (example: 2000ms = 2s)
+const long timeoutTime = 2000;
+
+int state = 0;   // 0 off, 1 on
+int state2 = 0;
+int state3 = 0;  // 0 off, 1 on
+int state4 = 0;
+int state5 = 0;
+int state6 = 0;
+int state7 = 0;   // 0 off, 1 on
+int state8 = 0;
+int state9 = 0;  // 0 off, 1 on
+int state10 = 0;
+int state11= 0;
+int state12= 0;
+int state13 = 0;  
+int state14 = 0;
+int state15= 0;
+int state16= 0;
+
+void setup() {
+  pinMode(led, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(led3, OUTPUT);
+  pinMode(led4, OUTPUT);
+  pinMode(led5, OUTPUT);
+  pinMode(led6, OUTPUT);
+  pinMode(led7, OUTPUT);
+  pinMode(led8, OUTPUT);
+  Wire.begin(21, 22);
+  Serial.begin(115200);
+
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  // Print local IP address and start web server
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+}
+
+void loop() {
+  WiFiClient client = server.available(); // Listen for incoming clients
+
+  if (client) { // If a new client connects,
+    currentTime = millis();
+    previousTime = currentTime;
+    Serial.println("New Client."); // print a message out in the serial port
+    String currentLine = "";       // make a String to hold incoming data from the client
+    while (client.connected() && currentTime - previousTime <= timeoutTime) { // loop while the client's connected
+      currentTime = millis();
+      if (client.available()) {                         // if there's bytes to read from the client,
+        char c = client.read();                        // read a byte, then
+        Serial.write(c);                               // print it out the serial monitor
+        header += c;
+        if (c == '\n') { // if the byte is a newline character
+          // if the current line is blank, you got two newline characters in a row.
+          // that's the end of the client HTTP request, so send a response:
+          if (currentLine.length() == 0) {
+
+            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+            // and a content-type so the client knows what's coming, then a blank line:
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+
+            // turns the GPIOs on and off
+            if (header.indexOf("GET /led/on") >= 0) {
+              state = 1;
+              Serial.println("Led ON");
+              digitalWrite(led, HIGH);
+            }
+            else if (header.indexOf("GET /led/off") >= 0) {
+              state = 0;
+              Serial.println("Led OFF");
+              digitalWrite(led, LOW);
+            }
+            if (header.indexOf("GET /led2/on") >= 0) {
+              state3 = 1;
+              Serial.println("led2 on");
+              digitalWrite(led2, HIGH);
+            }
+            else if (header.indexOf("GET /led2/off") >= 0) {
+              state3 = 0;
+              Serial.println("led2 off");
+              digitalWrite(led2, LOW);
+            }
+            if (header.indexOf("GET /led3/on") >= 0) {
+              state5 = 1;
+              Serial.println("led3 on");
+              digitalWrite(led3, HIGH);
+            }
+            else if (header.indexOf("GET /led3/off") >= 0) {
+              state5 = 0;
+              Serial.println("led3 off");
+              digitalWrite(led3, LOW);
+            }
+            if (header.indexOf("GET /led4/on") >= 0) {
+              state7 = 1;
+              Serial.println("led4 on");
+              digitalWrite(led4, HIGH);
+            }
+            else if (header.indexOf("GET /led4/off") >= 0) {
+              state7 = 0;
+              Serial.println("led4 off");
+              digitalWrite(led4, LOW);
+            }
+            if (header.indexOf("GET /led5/on") >= 0) {
+              state9 = 1;
+              Serial.println("led5 on");
+              digitalWrite(led5, HIGH);
+            }
+            else if (header.indexOf("GET /led5/off") >= 0) {
+              state9 = 0;
+              Serial.println("led5 off");
+              digitalWrite(led5, LOW);
+            }
+            if (header.indexOf("GET /led6/on") >= 0) {
+              state11 = 1;
+              Serial.println("led6 on");
+              digitalWrite(led6, HIGH);
+            }
+            else if (header.indexOf("GET /led6/off") >= 0) {
+              state11 = 0;
+              Serial.println("led6 off");
+              digitalWrite(led6, LOW);
+            }
+             if (header.indexOf("GET /led7/on") >= 0) {
+              state13 = 1;
+              Serial.println("led7 on");
+              digitalWrite(led7, HIGH);
+            }
+            else if (header.indexOf("GET /led7/off") >= 0) {
+              state13 = 0;
+              Serial.println("led7 off");
+              digitalWrite(led7, LOW);
+            }
+             if (header.indexOf("GET /led8/on") >= 0) {
+              state15 = 1;
+              Serial.println("led8 on");
+              digitalWrite(led8, HIGH);
+            }
+            else if (header.indexOf("GET /led8/off") >= 0) {
+              state15 = 0;
+              Serial.println("led8 off");
+              digitalWrite(led8, LOW);
+            }
+          
+
+            // Display the HTML web page
+            client.println("<!DOCTYPE html><html>");
+            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            client.println("<link rel=\"icon\" href=\"data:,\">");
+
+            // CSS to style the on/off buttons
+            // Feel free to change the background-color and font-size attributes to fit your preferences
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button { background-color: #1A5276; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button2 {background-color: #7133FF;}</style></head>");
+
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button3 { background-color: #117864; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button4 {background-color: #E9EC0D;}</style></head>");
+
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button5 { background-color: #33FF4F; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button6 {background-color: #F033FF;}</style></head>");
+
+             client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button7 { background-color: #199CE1; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button8 {background-color: #4E074C;}</style></head>");
+
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button9 { background-color: #D6B0D5; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button10 {background-color: #D78E54;}</style></head>");
+
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button11 { background-color: #D75472; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button12 {background-color: #9DD754;}</style></head>");
+
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button13 { background-color: #F9FF33; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button14 {background-color: #3D3F08;}</style></head>");
+
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button15 { background-color: #3F083A; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button16 {background-color: #E596DD;}</style></head>");
+
+
+
+
+
+            
+
+            // Web Page Heading
+            client.println("<body><h1>CONTROLADOR Leds de la casa </h1>");
+
+            // Display current state, and ON/OFF buttons for GPIO 26
+            // If the output26State is off, it displays the ON button
+            if (state == 1) {
+              client.println("<p>Led Encendida</p>");
+              client.println("<p><a href=\"/led/off\"><button class=\"button button2\">OFF</button></a></p>");
+            }
+            else {
+              client.println("<p>Led Apagada</p>");
+              client.println("<p><a href=\"/led/on\"><button class=\"button\">ON</button></a></p>");
+            }
+
+            if (state3 == 1) {
+              client.println("<p>led2 Encendido</p>");
+              client.println("<p><a href=\"/led2/off\"><button class=\"button3 button4\">OFF</button></a></p>");
+            }
+            else {
+              client.println("<p>led2 Apagado</p>");
+              client.println("<p><a href=\"/led2/on\"><button class=\"button3\">ON</button></a></p>");
+            }
+
+            if (state5 == 1) {
+              client.println("<p>led3 Encendido</p>");
+              client.println("<p><a href=\"/led3/off\"><button class=\"button5 button6\">OFF</button></a></p>");
+            }
+            else {
+              client.println("<p>led3 Apagado</p>");
+              client.println("<p><a href=\"/led3/on\"><button class=\"button5\">ON</button></a></p>");
+            }
+            if (state7 == 1) {
+              client.println("<p>Led4 Encendida</p>");
+              client.println("<p><a href=\"/led4/off\"><button class=\"button7 button8\">OFF</button></a></p>");
+            }
+            else {
+              client.println("<p>Led4 Apagada</p>");
+              client.println("<p><a href=\"/led4/on\"><button class=\"button7\">ON</button></a></p>");
+            }
+
+            if (state9 == 1) {
+              client.println("<p>led5 Encendido</p>");
+              client.println("<p><a href=\"/led5/off\"><button class=\"button9 button10\">OFF</button></a></p>");
+            }
+            else {
+              client.println("<p>led5 Apagado</p>");
+              client.println("<p><a href=\"/led5/on\"><button class=\"button9\">ON</button></a></p>");
+            }
+
+            if (state11 == 1) {
+              client.println("<p>led6 Encendido</p>");
+              client.println("<p><a href=\"/led6/off\"><button class=\"button11 button12\">OFF</button></a></p>");
+            }
+            else {
+              client.println("<p>led6 Apagado</p>");
+              client.println("<p><a href=\"/led6/on\"><button class=\"button11\">ON</button></a></p>");
+            }
+            if (state13 == 1) {
+              client.println("<p>led7 Encendido</p>");
+              client.println("<p><a href=\"/led7/off\"><button class=\"button13 button14\">OFF</button></a></p>");
+            }
+            else {
+              client.println("<p>led7 Apagado</p>");
+              client.println("<p><a href=\"/led7/on\"><button class=\"button13\">ON</button></a></p>");
+            }
+            if (state15 == 1) {
+              client.println("<p>led8 Encendido</p>");
+              client.println("<p><a href=\"/led8/off\"><button class=\"button15 button16\">OFF</button></a></p>");
+            }
+            else {
+              client.println("<p>led6 Apagado</p>");
+              client.println("<p><a href=\"/led8/on\"><button class=\"button15\">ON</button></a></p>");
+            }
+
+
+            client.println("</body></html>");
+
+            // The HTTP response ends with another blank line
+            client.println();
+            // Break out of the while loop
+            break;
+          }
+          else { // if you got a newline, then clear currentLine
+            currentLine = "";
+          }
+        }
+        else if (c != '\r') { // if you got anything else but a carriage return character,
+          currentLine += c;   // add it to the end of the currentLine
+        }
+      }
+    }
+    // Clear the header variable
+    header = "";
+    // Close the connection
+    client.stop();
+    Serial.println("Client disconnected.");
+    Serial.println("");
+  }
+}
