@@ -1,0 +1,131 @@
+//incluir librerias 
+#include "AdafruitIO_WiFi.h"
+#include <DHT.h>
+
+//definir los pines 
+#define DHTTYPE DHT11
+#define PIN_DHT11_1 12
+#define PIN_DHT11_2 18
+#define PIN_DHT11_3 13
+
+//Conexión con Adafruit
+#define IO_USERNAME  "Adolff_0"
+#define IO_KEY       "aio_zTrl9111XNf9zMqUxl5UR8WsnR89"
+
+#define WIFI_SSID      "Balam"
+#define WIFI_PASS      "0987654321"
+
+AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
+
+float temp1;
+float temp2;
+float temp3;
+
+const int pir1 = 7;
+const int pir2 = 8;
+
+int foco1= 19;
+int foco2= 22;
+
+  int val;
+    int val2;
+
+DHT dht1(PIN_DHT11_1, DHTTYPE);
+DHT dht2(PIN_DHT11_2, DHTTYPE);
+DHT dht3(PIN_DHT11_3, DHTTYPE);
+
+//TDH11
+AdafruitIO_Feed *TEM = io.feed("TEM");
+AdafruitIO_Feed *TEM2 = io.feed("TEM2");
+AdafruitIO_Feed *TEM3 = io.feed("TEM3");
+AdafruitIO_Feed *PIR = io.feed("PIR");
+AdafruitIO_Feed *PIR2 = io.feed("PIR2");
+
+void setup() {
+  Serial.begin(115200);
+  Serial.print("Connecting to Adafruit IO");
+          io.connect();
+      while(io.status() < AIO_CONNECTED) {
+      Serial.print(".");
+      delay(500);
+    }
+    Serial.println();
+    Serial.println(io.statusText());
+     dht1.begin();
+  dht2.begin();
+  dht3.begin();
+
+   pinMode(pir1, INPUT);
+ pinMode(pir2, INPUT);
+
+  pinMode(foco1, OUTPUT);
+   pinMode(foco2, OUTPUT);
+}
+
+void loop() {
+  io.run();
+  envio_datossen1();
+   envio_datossen2();
+    envio_datossen3();
+
+     envio_PIR1();
+    envio_PIR2();
+
+    if(val==1){
+    digitalWrite(foco1, HIGH);
+    }else{
+      digitalWrite(foco1, LOW);
+    }
+
+      if(val2==1){
+    digitalWrite(foco2, HIGH);
+    }else{
+      digitalWrite(foco2, LOW);
+    }
+}
+
+void envio_datossen1() {
+  temp1 = dht1.readTemperature();
+  Serial.println("Temperature 1: ");
+  Serial.println(temp1);
+  Serial.println(" *C");
+    TEM->save(temp1);
+  delay(4000);
+}
+
+void envio_datossen2() {
+  temp2 = dht2.readTemperature();
+  Serial.println("Temperature 2: ");
+  Serial.println(temp2);
+  Serial.println(" *C");
+  TEM2->save(temp2);
+  delay(4000);
+}
+
+void envio_datossen3() {
+  temp3 = dht3.readTemperature();
+  Serial.println("Temperature 3: ");
+  Serial.println(temp3);
+  Serial.println(" *C");
+  TEM3->save(temp3);
+  delay(4000);
+}
+
+void envio_PIR1(){
+
+  val = digitalRead(pir1);
+  Serial.print(val);
+  Serial.println(" persona");
+  delay(500);
+      PIR->save(val);
+
+}
+void envio_PIR2(){
+
+   val2 = digitalRead(pir2);
+  Serial.print(val2);
+  Serial.println(" persona");
+  delay(500);
+      PIR2->save(val2);
+
+}
